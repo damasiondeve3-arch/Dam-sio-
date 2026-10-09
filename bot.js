@@ -18,24 +18,23 @@ async function start(){
   if(!sock.authState.creds.registered){
     await new Promise(r=>setTimeout(r,3000));
     try{
-      // COLOCA SEU NUMERO AQUI SEM + E SEM ESPAÇO: ex 258841234567
-      let code = await sock.requestPairingCode('258XXXXXXXXX');
+      let code = await sock.requestPairingCode('258855086013');
       console.log('\n==========================');
-      console.log(`CODIGO: ${code}`);
+      console.log(`CODIGO PARA 258855086013: ${code}`);
       console.log('==========================\n');
-    }catch(e){ console.log('Erro:', e.message) }
+    }catch(e){ console.log('Erro pairing:', e.message) }
   }
 
   sock.ev.on('creds.update', saveCreds);
   sock.ev.on('connection.update', u=>{
-    if(u.connection === 'open') console.log('CONECTADO!');
+    if(u.connection === 'open') console.log('CONECTADO! BOT ONLINE!');
   });
   sock.ev.on('messages.upsert', async({messages})=>{
     const m = messages[0];
     if(!m.message) return;
     const texto = m.message.conversation || m.message.extendedTextMessage?.text || '';
     if(texto.toLowerCase() === '.ping'){
-      await sock.sendMessage(m.key.remoteJid, {text:'Pong! Bot online 🚀'});
+      await sock.sendMessage(m.key.remoteJid, {text:'Pong! Bot do Damasio online 🚀'});
     }
   });
 }
