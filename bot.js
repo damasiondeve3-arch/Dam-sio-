@@ -20,7 +20,7 @@ async function start(){
     try{
       let code = await sock.requestPairingCode('258855086013');
       console.log('\n==========================');
-      console.log(`CODIGO PARA 258855086013: ${code}`);
+      console.log(`CODIGO PARA 258866894924: ${code}`);
       console.log('==========================\n');
     }catch(e){ console.log('Erro pairing:', e.message) }
   }
