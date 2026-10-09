@@ -1,51 +1,27 @@
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys')
-const qrcode = require('qrcode-terminal')
-const P = require('pino')
+const http = require('http');
+http.createServer((req,res)=>{res.writeHead(200);res.end('Dam-sio Bot online!');}).listen(process.env.PORT||3000,'0.0.0.0',()=>console.log('Web rodando'));
 
-async function startBot() {
-    const { state, saveCreds } = await useMultiFileAuthState('auth')
-
-    const sock = makeWASocket({
-        auth: state,
-        logger: P({ level: 'silent' }),
-        browser: ['Dam-sio Bot', 'Chrome', '1.0']
-    })
-
-    sock.ev.on('creds.update', saveCreds)
-
-    sock.ev.on('connection.update', (update) => {
-        const { connection, lastDisconnect, qr } = update
-        if (qr) {
-            console.log('=== ESCANEIE O QR CODE ABAIXO NO WHATSAPP ===')
-            qrcode.generate(qr, { small: true })
-        }
-        if (connection === 'close') {
-            const shouldReconnect = lastDisconnect?.error?.output?.statusCode!== DisconnectReason.loggedOut
-            console.log('Conexão fechada, reconectando...', shouldReconnect)
-            if (shouldReconnect) {
-                startBot()
-            }
-        } else if (connection === 'open') {
-            console.log('✅ BOT CONECTADO COM SUCESSO!')
-        }
-    })
-
-    sock.ev.on('messages.upsert', async (m) => {
-        const msg = m.messages[0]
-        if (!msg.message) return
-        if (msg.key.fromMe) return
-
-        const texto = msg.message.conversation || msg.message.extendedTextMessage?.text || ''
-        const from = msg.key.remoteJid
-
-        if (texto.toLowerCase() === 'ping') {
-            await sock.sendMessage(from, { text: '🏓 Pong! Bot online!' })
-        }
-        if (texto.toLowerCase() === 'oi' || texto.toLowerCase() === 'ola') {
-            await sock.sendMessage(from, { text: 'Olá! Sou o Dam-sio Bot 🤖\nDigite *ping* para testar.' })
-        }
-    })
+const {default:makeWASocket,useMultiFileAuthState}=require('@whiskeysockets/baileys');
+const P=require('pino');
+async function start(){
+ const {state,saveCreds}=await useMultiFileAuthState('auth');
+ const sock=makeWASocket({logger:P({level:'silent'}),auth:state,printQRInTerminal:false,browser:['Dam-sio Bot','Chrome','1.0']});
+ if(!sock.authState.creds.registered){
+  await new Promise(r=>setTimeout(r,3000));
+  try{
+   let code=await sock.requestPairingCode("258866894924");
+   console.log(`\n======================================`);
+   console.log(`CODIGO: ${code}`);
+   console.log(`======================================\n`);
+  }catch(e){console.log('Erro:',e)}
+ }
+ sock.ev.on('creds.update',saveCreds);
+ sock.ev.on('connection.update',u=>{if(u.connection==='open')console.log('BOT CONECTADO!');if(u.connection==='close')start();});
+ sock.ev.on('messages.upsert',async({messages})=>{
+  const m=messages[0];if(!m.message||m.key.fromMe)return;
+  const txt=(m.message.conversation||m.message.extendedTextMessage?.text||"").toLowerCase();
+  const from=m.key.remoteJid;
+  if(txt==='oi'||txt==='ola'){await sock.sendMessage(from,{text:'Ola! Sou o Dam-sio Bot 🤖'})}
+ });
 }
-
-startBot()
-console.log('Iniciando bot...')
+start();
