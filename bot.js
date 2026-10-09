@@ -1,4 +1,4 @@
-const http = require('http');
+1const http = require('http');
 http.createServer((req,res)=>{
   res.writeHead(200,{'Content-Type':'text/plain'});
   res.end('DAMASIO BOT ONLINE');
@@ -20,7 +20,7 @@ async function start(){
     try{
       let code = await sock.requestPairingCode('258855086013');
       console.log('\n==========================');
-      console.log(`CODIGO PARA 258866894924: ${code}`);
+      console.log(`CODIGO PARA 258855086013: ${code}`);
       console.log('==========================\n');
     }catch(e){ console.log('Erro pairing:', e.message) }
   }
