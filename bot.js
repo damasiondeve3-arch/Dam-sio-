@@ -18,7 +18,7 @@ async function start(){
   if(!sock.authState.creds.registered){
     await new Promise(r=>setTimeout(r,3000));
     try{
-      let code = await sock.requestPairingCode('258855086013');
+      let code = await sock.requestPairingCode('258866896924');
       console.log('\n==========================');
       console.log(`CODIGO PARA 258866896925: ${code}`);
       console.log('==========================\n');
